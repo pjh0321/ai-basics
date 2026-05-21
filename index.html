@@ -1,0 +1,1335 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI와 함께 막힘을 푸는 법 — 사내용</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --bg: #ffffff;
+  --bg-dark: #0c0c0c;
+  --bg-soft: #f9f8fc;
+  --ink: #1a1a1a;
+  --ink-soft: #4a4a4a;
+  --ink-mute: #888;
+  --purple: #7c6dff;
+  --purple-deep: #5e4eda;
+  --purple-soft: #c5bff0;
+  --purple-pale: #ede9f8;
+  --line: #e8e8e8;
+  --line-soft: #f0f0f0;
+  --radius: 14px;
+  --radius-sm: 10px;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html, body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: 'Pretendard', -apple-system, sans-serif;
+  font-weight: 400;
+  -webkit-font-smoothing: antialiased;
+  line-height: 1.6;
+  scroll-behavior: smooth;
+  word-break: keep-all;
+  overflow-wrap: break-word;
+}
+
+.mono { font-family: 'JetBrains Mono', monospace; }
+
+.slide, .cover, .section-slide {
+  min-height: 100vh;
+  width: 100%;
+  padding: 56px 72px 64px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  border-bottom: 1px solid var(--line-soft);
+}
+
+.cover, .section-slide { justify-content: space-between; }
+
+.cover > :not(.s-header):not(.cover-deco),
+.section-slide > :not(.s-header),
+.content {
+  width: min(100%, 1200px);
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.s-header {
+  position: absolute;
+  top: 28px;
+  left: 72px;
+  right: 72px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  color: var(--ink-mute);
+  text-transform: uppercase;
+}
+
+.s-header .pg { color: var(--purple-deep); font-weight: 600; }
+
+.s-footer {
+  position: absolute;
+  bottom: 28px;
+  left: 72px;
+  right: 72px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: var(--ink-mute);
+}
+
+.section-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: var(--purple-deep);
+  margin-bottom: 18px;
+}
+
+.section-label::before {
+  content: '';
+  width: 24px;
+  height: 1px;
+  background: var(--purple-deep);
+}
+
+h1.cover-title {
+  font-family: 'Pretendard', sans-serif;
+  font-weight: 800;
+  font-size: 56px;
+  line-height: 1.12;
+  letter-spacing: -0.035em;
+  color: var(--ink);
+  max-width: 980px;
+}
+
+h1.cover-title .accent { color: var(--purple-deep); }
+
+h2.s-title {
+  font-family: 'Pretendard', sans-serif;
+  font-weight: 800;
+  font-size: 38px;
+  line-height: 1.18;
+  letter-spacing: -0.03em;
+  margin-bottom: 16px;
+  color: var(--ink);
+  max-width: 1000px;
+  text-wrap: balance;
+}
+
+h2.s-title .accent { color: var(--purple-deep); }
+
+h3 {
+  font-family: 'Pretendard', sans-serif;
+  font-weight: 700;
+  font-size: 18px;
+  line-height: 1.4;
+  letter-spacing: -0.015em;
+  color: var(--ink);
+  margin-bottom: 10px;
+}
+
+.body-text {
+  font-size: 16px;
+  line-height: 1.72;
+  color: #3f3f49;
+  max-width: 800px;
+  margin-bottom: 14px;
+  font-weight: 400;
+  text-wrap: pretty;
+}
+
+.body-text strong { color: var(--ink); font-weight: 700; }
+
+.body-text code {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px;
+  background: var(--purple-pale);
+  padding: 1px 6px;
+  border-radius: 4px;
+  color: var(--purple-deep);
+}
+
+.content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 36px 0;
+}
+
+.content.top { justify-content: flex-start; padding-top: 52px; }
+
+.card {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 22px 24px;
+  position: relative;
+}
+
+.card.purple {
+  background: var(--purple-pale);
+  border: 1px solid var(--purple-soft);
+}
+
+.card .card-num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--purple-deep);
+  letter-spacing: 0.12em;
+  margin-bottom: 10px;
+  text-transform: uppercase;
+}
+
+.card .card-title {
+  font-weight: 700;
+  font-size: 17px;
+  line-height: 1.38;
+  color: var(--ink);
+  margin-bottom: 8px;
+  letter-spacing: -0.015em;
+  text-wrap: balance;
+}
+
+.card .card-body {
+  font-size: 14px;
+  line-height: 1.68;
+  color: var(--ink-soft);
+  text-wrap: pretty;
+}
+
+.card .card-body strong { color: var(--ink); font-weight: 600; }
+.card .card-body code {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12.5px;
+  background: rgba(94, 78, 218, 0.08);
+  padding: 1px 6px;
+  border-radius: 4px;
+  color: var(--purple-deep);
+}
+
+.grid-3 {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 14px;
+  margin-top: 18px;
+}
+
+.grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+  margin-top: 14px;
+}
+
+.callout {
+  background: var(--bg-dark);
+  color: #fff;
+  padding: 22px 26px;
+  border-radius: var(--radius);
+  margin: 18px 0 0;
+  max-width: 980px;
+}
+
+.callout .callout-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.15em;
+  color: var(--purple-soft);
+  margin-bottom: 10px;
+  text-transform: uppercase;
+}
+
+.callout .callout-body {
+  font-family: 'Pretendard', sans-serif;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1.55;
+  letter-spacing: -0.015em;
+}
+
+.callout .callout-body code {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px;
+  background: rgba(255,255,255,0.12);
+  padding: 1px 6px;
+  border-radius: 4px;
+  color: var(--purple-soft);
+}
+
+.chat {
+  margin-top: 18px;
+  max-width: 980px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.bubble {
+  padding: 14px 18px;
+  border-radius: 14px;
+  font-size: 14.5px;
+  line-height: 1.6;
+  max-width: 78%;
+}
+
+.bubble.user {
+  background: var(--bg-dark);
+  color: #fff;
+  align-self: flex-end;
+  border-bottom-right-radius: 4px;
+}
+
+.bubble.user code {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  background: rgba(255,255,255,0.12);
+  padding: 1px 6px;
+  border-radius: 4px;
+  color: var(--purple-soft);
+}
+
+.bubble.ai {
+  background: var(--purple-pale);
+  color: var(--ink);
+  align-self: flex-start;
+  border: 1px solid var(--purple-soft);
+  border-bottom-left-radius: 4px;
+}
+
+.bubble.ai strong { color: var(--purple-deep); font-weight: 700; }
+
+.bubble.ai code {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  background: rgba(94, 78, 218, 0.12);
+  padding: 1px 6px;
+  border-radius: 4px;
+  color: var(--purple-deep);
+}
+
+.bubble-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: var(--ink-mute);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.bubble.user .bubble-label { color: var(--purple-soft); }
+.bubble.ai .bubble-label { color: var(--purple-deep); }
+
+.compare-grid {
+  display: grid;
+  grid-template-columns: 1fr 28px 1fr;
+  gap: 14px;
+  margin-top: 22px;
+  align-items: stretch;
+}
+
+.compare-col {
+  padding: 22px 24px;
+  border-radius: var(--radius);
+  border: 1px solid var(--line);
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+}
+
+.compare-col.after {
+  background: var(--purple-pale);
+  border-color: var(--purple-soft);
+}
+
+.compare-col .compare-tag {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--purple-deep);
+  letter-spacing: 0.2em;
+  margin-bottom: 10px;
+  text-transform: uppercase;
+}
+
+.compare-col h4 {
+  font-family: 'Pretendard', sans-serif;
+  font-weight: 700;
+  font-size: 17px;
+  line-height: 1.38;
+  letter-spacing: -0.015em;
+  color: var(--ink);
+  margin-bottom: 8px;
+  text-wrap: balance;
+}
+
+.compare-col p {
+  font-size: 14px;
+  line-height: 1.68;
+  color: var(--ink-soft);
+  text-wrap: pretty;
+}
+
+.compare-col p code {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12.5px;
+  background: rgba(94, 78, 218, 0.08);
+  padding: 1px 5px;
+  border-radius: 4px;
+  color: var(--purple-deep);
+}
+
+.compare-arrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--purple-deep);
+  font-size: 20px;
+  font-weight: 500;
+}
+
+.lesson-box {
+  margin-top: 22px;
+  padding: 22px 26px;
+  border-left: 3px solid var(--purple-deep);
+  background: var(--bg-soft);
+  border-radius: 0 var(--radius) var(--radius) 0;
+}
+
+.lesson-box .lesson-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--purple-deep);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.lesson-box .lesson-body {
+  font-size: 16px;
+  line-height: 1.65;
+  color: var(--ink);
+  font-weight: 500;
+  letter-spacing: -0.015em;
+}
+
+.lesson-box .lesson-body strong {
+  color: var(--purple-deep);
+  font-weight: 700;
+}
+
+.lesson-box .lesson-body code {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px;
+  background: rgba(255,255,255,0.7);
+  padding: 1px 6px;
+  border-radius: 4px;
+  color: var(--purple-deep);
+}
+
+.cover-meta {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  color: var(--ink-mute);
+  text-transform: uppercase;
+}
+
+.cover-sub {
+  font-size: 18px;
+  color: var(--ink-soft);
+  margin-top: 28px;
+  font-weight: 400;
+  max-width: 760px;
+  line-height: 1.7;
+  text-wrap: pretty;
+}
+
+.cover-sub strong { color: var(--ink); font-weight: 600; }
+
+.cover-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  color: var(--ink-mute);
+  letter-spacing: 0.1em;
+}
+
+.cover-deco {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 160px;
+  font-weight: 500;
+  color: var(--purple-pale);
+  position: absolute;
+  right: 64px;
+  bottom: 120px;
+  letter-spacing: -0.04em;
+  line-height: 1;
+  z-index: 0;
+}
+
+.section-slide .big-num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 160px;
+  font-weight: 500;
+  color: var(--purple-pale);
+  line-height: 0.9;
+  letter-spacing: -0.04em;
+}
+
+.section-slide .section-title {
+  font-family: 'Pretendard', sans-serif;
+  font-weight: 800;
+  font-size: 50px;
+  line-height: 1.15;
+  letter-spacing: -0.03em;
+  color: var(--ink);
+  text-wrap: balance;
+  max-width: 1000px;
+}
+
+.section-slide .section-sub {
+  font-size: 16px;
+  color: var(--ink-soft);
+  margin-top: 18px;
+  max-width: 700px;
+  line-height: 1.7;
+  text-wrap: pretty;
+}
+
+.slide.dark {
+  background: var(--bg-dark);
+  color: #fff;
+  border-bottom: none;
+}
+
+.slide.dark .s-header { color: rgba(255,255,255,0.5); }
+.slide.dark .s-header .pg { color: var(--purple-soft); }
+.slide.dark .s-footer { color: rgba(255,255,255,0.4); }
+.slide.dark .section-label { color: var(--purple-soft); }
+.slide.dark .section-label::before { background: var(--purple-soft); }
+.slide.dark h2.s-title { color: #fff; }
+.slide.dark .body-text { color: rgba(255,255,255,0.78); }
+.slide.dark .body-text strong { color: #fff; }
+
+.hero-quote {
+  font-family: 'Pretendard', sans-serif;
+  font-weight: 500;
+  font-size: 32px;
+  line-height: 1.45;
+  letter-spacing: -0.025em;
+  color: #fff;
+  max-width: 980px;
+  margin: 28px 0 24px;
+  padding-left: 28px;
+  border-left: 3px solid var(--purple-soft);
+  text-wrap: balance;
+}
+
+.hero-quote em {
+  font-style: normal;
+  color: var(--purple-soft);
+  font-weight: 600;
+}
+
+.emphasis {
+  background: linear-gradient(90deg, var(--purple-pale) 0%, rgba(237, 233, 248, 0.4) 100%);
+  border-left: 3px solid var(--purple-deep);
+  padding: 14px 18px;
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  margin: 14px 0;
+  font-size: 15.5px;
+  line-height: 1.65;
+  color: var(--ink);
+  font-weight: 500;
+}
+
+.emphasis strong { color: var(--purple-deep); font-weight: 700; }
+
+.emphasis code {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13.5px;
+  background: rgba(255, 255, 255, 0.7);
+  padding: 1px 6px;
+  border-radius: 4px;
+  color: var(--purple-deep);
+}
+
+.closing-big {
+  font-family: 'Pretendard', sans-serif;
+  font-weight: 800;
+  font-size: 130px;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  color: #fff;
+  text-align: center;
+}
+
+.closing-wrap {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 36px;
+}
+
+.changelog {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-top: 12px;
+}
+
+.changelog-item {
+  display: flex;
+  gap: 16px;
+  align-items: baseline;
+  padding: 5px 0;
+}
+
+.changelog-item .ci-num {
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--purple-deep);
+  font-size: 12px;
+  font-weight: 600;
+  min-width: 28px;
+  letter-spacing: 0.05em;
+}
+
+.changelog-item .ci-body {
+  font-size: 15px;
+  line-height: 1.7;
+  color: var(--ink-soft);
+}
+
+.changelog-item .ci-body strong { color: var(--ink); font-weight: 600; }
+
+.changelog-item .ci-body code {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  background: var(--purple-pale);
+  padding: 1px 6px;
+  border-radius: 4px;
+  color: var(--purple-deep);
+}
+
+.nav-toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(12, 12, 12, 0.92);
+  color: #fff;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11.5px;
+  padding: 10px 20px;
+  border-radius: 24px;
+  letter-spacing: 0.05em;
+  z-index: 200;
+  opacity: 1;
+  transition: opacity 0.6s ease;
+  backdrop-filter: blur(6px);
+}
+
+.nav-toast.hidden { opacity: 0; pointer-events: none; }
+
+@media (max-height: 800px) {
+  .slide, .cover, .section-slide { padding: 42px 60px 50px; }
+  .s-header { top: 20px; left: 60px; right: 60px; }
+  .s-footer { bottom: 20px; left: 60px; right: 60px; }
+  h1.cover-title { font-size: 46px; }
+  h2.s-title { font-size: 32px; margin-bottom: 12px; }
+  .section-slide .section-title { font-size: 42px; }
+  .section-slide .big-num { font-size: 130px; }
+  .cover-deco { font-size: 130px; right: 50px; bottom: 90px; }
+  .body-text { font-size: 15px; margin-bottom: 12px; }
+  .content { padding: 24px 0; }
+  .content.top { padding-top: 40px; }
+  .card { padding: 18px 22px; }
+  .card .card-title { font-size: 16px; }
+  .card .card-body { font-size: 13.5px; }
+  .callout { padding: 18px 22px; }
+  .callout .callout-body { font-size: 15px; }
+  .hero-quote { font-size: 26px; }
+  .bubble { padding: 12px 16px; font-size: 13.5px; }
+  .closing-big { font-size: 100px; }
+  .closing-wrap { gap: 28px; }
+  .emphasis { font-size: 14.5px; padding: 12px 16px; }
+  .changelog-item { padding: 4px 0; }
+  .changelog-item .ci-body { font-size: 14px; }
+}
+</style>
+</head>
+
+<body>
+
+<!-- ===== SLIDE 1 : COVER ===== -->
+<section class="cover" id="s1">
+  <div class="s-header">
+    <span>INTERNAL GUIDE · 2026</span>
+    <span class="pg">01 / 13</span>
+  </div>
+
+  <div style="margin-top: 76px; position: relative; z-index: 1;">
+    <div class="cover-meta">WORKING WITH AI — STUCK-UNSTUCK PLAYBOOK</div>
+    <h1 class="cover-title" style="margin-top: 22px;">
+      도구를 외우지 말고,<br>
+      <span class="accent">AI와 푸는 호흡을 익혀라.</span>
+    </h1>
+    <p class="cover-sub">
+      비개발자가 AI와 함께 막힘을 풀어가는 여덟 가지 호흡.
+      도구·언어·환경은 빠르게 바뀌지만, <strong>이 호흡은 그대로 쓰인다</strong>.
+      ChatGPT, Claude, Gemini, Copilot, Cursor — AI를 옆에 두고 일하는 모든 사람에게.
+    </p>
+  </div>
+
+  <div class="cover-deco">AI</div>
+
+  <div class="cover-footer">
+    <span>박준하 · 2026-05-20</span>
+    <span>AI TF · 전사 AX</span>
+  </div>
+</section>
+
+<!-- ===== SLIDE 2 : WHY ===== -->
+<section class="slide" id="s2">
+  <div class="s-header">
+    <span class="pg">02</span>
+    <span>CONTEXT · WHY THIS GUIDE</span>
+  </div>
+
+  <div class="content top">
+    <div class="section-label">the real bottleneck</div>
+    <h2 class="s-title">진짜 막히는 건 <span class="accent">도구가 아니다.</span></h2>
+    <p class="body-text">
+      이런 도구의 사용법, 단축키, 메뉴 위치 — AI한테 물으면 5초 만에 나온다.
+      비개발자가 진짜 막히는 곳은 그 다음이다.
+      <strong>"이게 잘 된 건가? 왜 이런 메시지가 뜨지? 다음엔 뭘 해야 하지?"</strong>
+      이 지점에서 멈춰버리면 도구는 무용지물이 된다.
+    </p>
+
+    <div class="grid-3">
+      <div class="card">
+        <div class="card-num">trap · 01</div>
+        <div class="card-title">물어볼 수 있다는 인식 부족</div>
+        <div class="card-body">"이런 기초적인 걸 물어봐도 되나?" 하는 망설임. 사실 AI에게 <strong>기초/응용 구분은 없다</strong>.</div>
+      </div>
+      <div class="card">
+        <div class="card-num">trap · 02</div>
+        <div class="card-title">에러 메시지 = 망함</div>
+        <div class="card-body">빨간 글자 보면 멘붕. 사실 에러 메시지는 <strong>해결의 출발점</strong>. 그대로 복사하면 끝.</div>
+      </div>
+      <div class="card">
+        <div class="card-num">trap · 03</div>
+        <div class="card-title">한 번에 다 하려고 함</div>
+        <div class="card-body">"처음부터 끝까지 알려줘" 식 요청. 한 단계씩 가야 <strong>막혀도 정확히 어디서</strong> 막혔는지 안다.</div>
+      </div>
+    </div>
+
+    <div class="callout">
+      <div class="callout-label">이 가이드의 약속</div>
+      <div class="callout-body">
+        도구별 설치 매뉴얼은 다루지 않는다. 그건 AI에게 직접 물으면 된다.
+        대신 <strong>"AI에게 잘 묻는 법" + "막혔을 때 빠져나오는 호흡"</strong>을 다룬다.
+        도구가 바뀌어도, 5년 뒤에도 그대로 유효한 스킬이다.
+      </div>
+    </div>
+  </div>
+
+  <div class="s-footer">
+    <span>박준하 · 2026-05-20</span>
+    <span>02 / 13</span>
+  </div>
+</section>
+
+<!-- ===== SLIDE 3 : MINDSET (HABIT 01 + 02) ===== -->
+<section class="slide" id="s3">
+  <div class="s-header">
+    <span class="pg">03</span>
+    <span>HABIT 01 · 02 · MINDSET</span>
+  </div>
+
+  <div class="content top">
+    <div class="section-label">mindset first</div>
+    <h2 class="s-title">기술 이전에 <span class="accent">자세부터.</span></h2>
+    <p class="body-text">
+      잘못된 전제 두 개가 모든 시도를 막는다 — <strong>망설임</strong>과 <strong>자책</strong>. 둘 다 같은 뿌리에서 나온다:
+      "내가 모르는 건 부끄러운 일"이라는 오해. AI 시대엔 그 전제 자체가 시대착오다.
+    </p>
+
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-num">habit · 01</div>
+        <div class="card-title">물어봐도 된다</div>
+        <div class="card-body">
+          AI는 질문 수준을 평가하지 않는다. 같은 질문을 100번 해도 같은 친절도로 답한다.
+          <strong>모름은 약점이 아니라 출발점</strong>. 솔직하게 모른다고 말하는 사람만이 정확한 답을 얻는다.
+        </div>
+      </div>
+      <div class="card purple">
+        <div class="card-num">habit · 02</div>
+        <div class="card-title">막힘은 정상 상태</div>
+        <div class="card-body">
+          개발자도 매일 막힌다. 차이는 막혔다는 사실이 아니라 <strong>다음 한 줄을 어떻게 찾는가</strong>.
+          "내가 못해서"가 아니라 "지금 정보가 부족해서" — 같은 일을 다르게 부르면 다음 행동이 달라진다.
+        </div>
+      </div>
+    </div>
+
+    <div class="emphasis">
+      <strong>실전 문구:</strong> 막혔을 때 "<code>지금 X를 하려는데 Y에서 막혔어. 이런 메시지가 떠.</code>" — 자책 시간 0초, 진행 1분.
+    </div>
+  </div>
+
+  <div class="s-footer">
+    <span>박준하 · 2026-05-20</span>
+    <span>03 / 13</span>
+  </div>
+</section>
+
+<!-- ===== SLIDE 4 : HABIT 03 - PASTE THE ERROR ===== -->
+<section class="slide" id="s4">
+  <div class="s-header">
+    <span class="pg">04</span>
+    <span>HABIT 03 · PASTE THE ERROR</span>
+  </div>
+
+  <div class="content top">
+    <div class="section-label">habit 03</div>
+    <h2 class="s-title">에러 메시지는 <span class="accent">그대로 통째로 복붙.</span></h2>
+    <p class="body-text">
+      에러 메시지를 보고 "뭔가 안 됐다"라고 요약해서 전달하지 말 것.
+      <strong>여러분이 본 화면 그대로</strong> 옮겨야 AI가 진단할 수 있다.
+      해석은 AI에게 맡기고, 여러분은 정보 전달만 하면 된다.
+    </p>
+
+    <div class="chat">
+      <div class="bubble user">
+        <div class="bubble-label">user · bad</div>
+        엑셀에서 함수 넣었는데 안 돼요. 도와줘요.
+      </div>
+      <div class="bubble ai">
+        <div class="bubble-label">ai</div>
+        어떤 함수를 어떤 셀에 넣으셨고, 어떤 결과가 나오나요? 정확한 수식과 셀에 표시되는 내용을 알려주세요.
+      </div>
+      <div class="bubble user">
+        <div class="bubble-label">user · good</div>
+        C2 셀에 <code>=VLOOKUP(A2, Sheet2!A:C, 3, FALSE)</code>를 넣었는데 결과가 <code>#N/A</code>로 표시돼요. Sheet2 A열엔 분명 A2와 같은 값이 있는데도요. 띄어쓰기 차이 같은 건 없어 보여요.
+      </div>
+      <div class="bubble ai">
+        <div class="bubble-label">ai</div>
+        VLOOKUP의 <code>#N/A</code>는 보통 <strong>찾는 값과 참조 값의 형식이 달라서</strong> 발생합니다. 한쪽이 텍스트고 다른 쪽이 숫자인 경우가 가장 흔해요. A2 셀 값과 Sheet2 A열 값의 셀 서식을 확인해주세요...
+      </div>
+    </div>
+
+    <div class="lesson-box">
+      <div class="lesson-label">규칙</div>
+      <div class="lesson-body">
+        <strong>요약하지 말고 그대로</strong>. 에러 전문, 명령어 전문, 출력 전문. 길어도 괜찮다 — AI는 길이를 부담스러워하지 않는다.
+      </div>
+    </div>
+  </div>
+
+  <div class="s-footer">
+    <span>박준하 · 2026-05-20</span>
+    <span>04 / 13</span>
+  </div>
+</section>
+
+<!-- ===== SLIDE 5 : HABIT 04 - SHOW THE SCREEN ===== -->
+<section class="slide" id="s5">
+  <div class="s-header">
+    <span class="pg">05</span>
+    <span>HABIT 04 · SHOW THE SCREEN</span>
+  </div>
+
+  <div class="content top">
+    <div class="section-label">habit 04</div>
+    <h2 class="s-title">AI는 여러분의 화면을 <span class="accent">보지 못한다.</span></h2>
+    <p class="body-text">
+      이게 가장 자주 잊히는 사실이다.
+      "방금 그 창" "화면에 뜬 그거" "그 빨간 글씨" — 이런 표현은 AI에게 닿지 않는다.
+      <strong>스크린샷·출력 텍스트·현재 위치</strong>를 항상 함께 전달해야 한다.
+    </p>
+
+    <div class="grid-3">
+      <div class="card">
+        <div class="card-num">channel · 01</div>
+        <div class="card-title">스크린샷 첨부</div>
+        <div class="card-body">UI 화면, 설정 메뉴, 에러 팝업 — 글로 옮기기 어려운 건 그냥 캡처해서 붙이자. <strong>한 장이 백 줄</strong>.</div>
+      </div>
+      <div class="card">
+        <div class="card-num">channel · 02</div>
+        <div class="card-title">텍스트는 통째로 복붙</div>
+        <div class="card-body">에러 메시지, 셀에 입력한 수식, 작성한 문장 — 글로 된 건 <strong>그대로 복사</strong>가 가장 정확. 다시 옮겨 쓰지 말 것.</div>
+      </div>
+      <div class="card">
+        <div class="card-num">channel · 03</div>
+        <div class="card-title">현재 위치·상태</div>
+        <div class="card-body">"지금 어느 단계까지 갔고, 무엇을 시도했고, 어떻게 됐는지." <strong>한 문장 요약</strong>이면 충분.</div>
+      </div>
+    </div>
+
+    <div class="callout">
+      <div class="callout-label">짧은 체크리스트</div>
+      <div class="callout-body">
+        메시지를 보내기 전, 이 셋이 들어 있는지 본다: <strong>(1) 내가 한 것 · (2) 본 것 · (3) 원하는 것</strong>.
+        이 셋이 다 있으면 AI 답변 정확도가 극적으로 올라간다.
+      </div>
+    </div>
+  </div>
+
+  <div class="s-footer">
+    <span>박준하 · 2026-05-20</span>
+    <span>05 / 13</span>
+  </div>
+</section>
+
+<!-- ===== SLIDE 6 : HABIT 05 - ONE STEP AT A TIME ===== -->
+<section class="slide" id="s6">
+  <div class="s-header">
+    <span class="pg">06</span>
+    <span>HABIT 05 · ONE STEP AT A TIME</span>
+  </div>
+
+  <div class="content top">
+    <div class="section-label">habit 05</div>
+    <h2 class="s-title">한 번에 한 단계씩, <span class="accent">확인하고 다음.</span></h2>
+    <p class="body-text">
+      "처음부터 끝까지 알려줘"는 비효율의 시작이다.
+      AI가 10단계를 한꺼번에 알려주면, 여러분은 3단계에서 막혀도
+      <strong>그게 어느 단계 때문인지</strong> 모른다. 결국 처음부터 다시.
+    </p>
+
+    <div class="compare-grid">
+      <div class="compare-col">
+        <div class="compare-tag">before</div>
+        <h4>"매주 보고서 자동화하는 법 처음부터 끝까지 다 알려줘"</h4>
+        <p>장문의 답변 → 중간 단계에서 막힘 → 어디부터 잘못된 건지 모름 → 전체 다시 → <strong>피로 누적 + 포기율 상승</strong>.</p>
+      </div>
+      <div class="compare-arrow">→</div>
+      <div class="compare-col after">
+        <div class="compare-tag">after</div>
+        <h4>"보고서 자동화 첫 단계만 알려줘. 끝나면 알려줄게."</h4>
+        <p>한 단계 → 결과 확인 → 다음 한 단계. <strong>막혀도 그 자리에서 진단</strong> 가능. 진척이 느려 보여도 실제론 가장 빠른 길.</p>
+      </div>
+    </div>
+
+    <div class="emphasis">
+      <strong>요청 문구로 굳혀두자:</strong> "<code>다음 스텝은 내가 요청할 때까지 기다려 줘. 한 단계씩 가자.</code>" — 이 한 줄을 첫 메시지에 박아두면 AI가 호흡을 맞춘다.
+    </div>
+  </div>
+
+  <div class="s-footer">
+    <span>박준하 · 2026-05-20</span>
+    <span>06 / 13</span>
+  </div>
+</section>
+
+<!-- ===== SLIDE 7 : HABIT 06 - VERIFY EACH STEP ===== -->
+<section class="slide" id="s7">
+  <div class="s-header">
+    <span class="pg">07</span>
+    <span>HABIT 06 · VERIFY EACH STEP</span>
+  </div>
+
+  <div class="content top">
+    <div class="section-label">habit 06</div>
+    <h2 class="s-title">"됐다"고 믿지 말고, <span class="accent">확인하기.</span></h2>
+    <p class="body-text">
+      AI는 "완료했습니다"라고 말하는 데 거리낌이 없다. 그게 사실인지는 별개 문제다.
+      <strong>실제로 됐는지를 한 단계마다 짧게 점검</strong>하는 습관이 있으면, 잘못된 토대 위에 다음 단계를 쌓는 일을 막을 수 있다.
+    </p>
+
+    <div class="changelog">
+      <div class="changelog-item">
+        <span class="ci-num">01</span>
+        <span class="ci-body"><strong>설정을 바꿨으면 그 화면을 다시 열어본다.</strong> 옵션이 정말 적용됐는지 눈으로 확인.</span>
+      </div>
+      <div class="changelog-item">
+        <span class="ci-num">02</span>
+        <span class="ci-body"><strong>파일을 만들었으면 열어본다.</strong> 위치, 내용, 형식이 의도대로인지 직접 확인.</span>
+      </div>
+      <div class="changelog-item">
+        <span class="ci-num">03</span>
+        <span class="ci-body"><strong>AI가 무언가 끝냈다고 하면, 결과물을 직접 본다.</strong> 요약 말고 원본을. 다른 게 끼어 있는 경우가 많다.</span>
+      </div>
+      <div class="changelog-item">
+        <span class="ci-num">04</span>
+        <span class="ci-body"><strong>확인 결과를 AI에게 보여준다.</strong> 스크린샷이나 출력을 그대로 붙이면 AI가 "잘 된 거 맞다 / 한 단계 더 필요하다"로 답해준다.</span>
+      </div>
+    </div>
+
+    <div class="lesson-box">
+      <div class="lesson-label">한 줄 요약</div>
+      <div class="lesson-body">
+        <strong>믿음 대신 증거.</strong> 매 단계마다 작은 확인을 끼워 넣자. 30초 더 쓰지만 한 시간을 아낀다.
+      </div>
+    </div>
+  </div>
+
+  <div class="s-footer">
+    <span>박준하 · 2026-05-20</span>
+    <span>07 / 13</span>
+  </div>
+</section>
+
+<!-- ===== SLIDE 8 : HABIT 07 - PAUSE WHEN DRIFTING ===== -->
+<section class="slide" id="s8">
+  <div class="s-header">
+    <span class="pg">08</span>
+    <span>HABIT 07 · PAUSE WHEN DRIFTING</span>
+  </div>
+
+  <div class="content top">
+    <div class="section-label">habit 07</div>
+    <h2 class="s-title">"이상한데?" 싶으면 <span class="accent">일단 멈추기.</span></h2>
+    <p class="body-text">
+      AI가 시키는 대로 30분 헤매고 있는데도 안 풀린다면 — <strong>접근 자체가 틀렸을 가능성</strong>이 높다.
+      더 깊이 파고들지 말고 멈춰서, 처음부터 다시 묻자.
+      "지금 이 방향이 맞는 거 같지 않아. 다른 접근은 없을까?"
+    </p>
+
+    <div class="chat">
+      <div class="bubble user">
+        <div class="bubble-label">user</div>
+        시킨 대로 셀 서식도 바꿔보고 공백도 제거했는데 여전히 <code>#N/A</code>가 떠. 30분째 같은 결과야. 우리가 뭔가 놓치고 있는 거 같은데, 지금 접근 방식이 맞는 건지 다시 한번 봐줄래?
+      </div>
+      <div class="bubble ai">
+        <div class="bubble-label">ai</div>
+        좋은 신호예요. 멈춘 김에 처음으로 돌아가서 점검해봅시다. <strong>혹시 참조 시트 이름이 정확한가요?</strong> 'Sheet2'가 아니라 '시트2' 같은 한글 이름이거나 끝에 공백이 있을 수도 있어요...
+      </div>
+    </div>
+
+    <div class="grid-2" style="margin-top: 20px;">
+      <div class="card">
+        <div class="card-num">signal · 01</div>
+        <div class="card-title">같은 에러가 반복된다</div>
+        <div class="card-body">시도를 바꿔도 똑같은 메시지 → <strong>전제 자체가 틀렸을 가능성</strong>. 한 단계 위로 올라가자.</div>
+      </div>
+      <div class="card purple">
+        <div class="card-num">signal · 02</div>
+        <div class="card-title">설명이 점점 길어진다</div>
+        <div class="card-body">AI가 우회로를 자꾸 제시한다면 처음 가정이 의심스러운 신호. <strong>"처음부터 다시"</strong>가 정답일 때가 있다.</div>
+      </div>
+    </div>
+
+    <div class="emphasis">
+      <strong>핵심:</strong> AI는 도움을 주려고 끝까지 따라온다. 멈춤은 <strong>여러분만 걸 수 있는 브레이크</strong>다. 호흡 가다듬고, 다시.
+    </div>
+  </div>
+
+  <div class="s-footer">
+    <span>박준하 · 2026-05-20</span>
+    <span>08 / 13</span>
+  </div>
+</section>
+
+<!-- ===== SLIDE 9 : HABIT 08 - DOCUMENT THE STRUGGLE ===== -->
+<section class="slide" id="s9">
+  <div class="s-header">
+    <span class="pg">09</span>
+    <span>HABIT 08 · DOCUMENT THE STRUGGLE</span>
+  </div>
+
+  <div class="content top">
+    <div class="section-label">habit 08</div>
+    <h2 class="s-title">시행착오는 <span class="accent">반드시 메모로.</span></h2>
+    <p class="body-text">
+      가장 큰 수혜자는 <strong>미래의 나 자신</strong>이다.
+      비슷한 일을 또 할 때 같은 함정에 다시 빠지지 않게 되고,
+      AI에게 매번 처음부터 설명할 필요도 없어진다 — <strong>"지난번 메모 보여줄게"</strong> 한 줄이면 끝.
+      덤으로 동료에게도 자산이 된다.
+    </p>
+
+    <div class="changelog">
+      <div class="changelog-item">
+        <span class="ci-num">01</span>
+        <span class="ci-body"><strong>막힌 지점을 그때그때 메모.</strong> 슬랙 DM, 노션, 메모장 어디든. 나중에 정리할 원자료.</span>
+      </div>
+      <div class="changelog-item">
+        <span class="ci-num">02</span>
+        <span class="ci-body"><strong>에러 메시지와 해결 방법을 짝으로.</strong> "이런 메시지 → 이렇게 해결" 한 줄씩.</span>
+      </div>
+      <div class="changelog-item">
+        <span class="ci-num">03</span>
+        <span class="ci-body"><strong>"왜 헷갈렸는지"도 적어둔다.</strong> 단순 해결책보다 <strong>혼동의 이유</strong>가 다시 봤을 때 더 도움된다.</span>
+      </div>
+      <div class="changelog-item">
+        <span class="ci-num">04</span>
+        <span class="ci-body"><strong>완벽한 문서로 만들 필요 없다.</strong> 거친 메모 모음으로도 충분. 다듬는 건 나중에 AI에게 시키면 된다.</span>
+      </div>
+    </div>
+
+    <div class="callout">
+      <div class="callout-label">메모가 일하는 방식</div>
+      <div class="callout-body">
+        <strong>오늘의 시행착오가 내일의 시작점이 된다.</strong>
+        AI는 강력하지만 매 대화가 새로 시작이라, 내 맥락은 내가 들고 다녀야 한다.
+        메모는 그 맥락의 저장고 — 같은 문제를 두 번 풀 필요가 없어진다.
+      </div>
+    </div>
+  </div>
+
+  <div class="s-footer">
+    <span>박준하 · 2026-05-20</span>
+    <span>09 / 13</span>
+  </div>
+</section>
+
+<!-- ===== SLIDE 10 : BAD-GOOD MESSAGE TEMPLATE ===== -->
+<section class="slide" id="s10">
+  <div class="s-header">
+    <span class="pg">10</span>
+    <span>TEMPLATE · ASK SMARTER</span>
+  </div>
+
+  <div class="content top">
+    <div class="section-label">message template</div>
+    <h2 class="s-title">막혔을 때 보낼 메시지, <span class="accent">이 틀에 채우기.</span></h2>
+    <p class="body-text">
+      여덟 호흡을 다 외우지 않아도 된다. 막혔을 때 이 틀에 빈칸만 채우면 자연스럽게 좋은 질문이 된다.
+    </p>
+
+    <div class="chat">
+      <div class="bubble user" style="max-width: 92%;">
+        <div class="bubble-label">message template</div>
+        <strong>지금 하려는 것:</strong> [전체 목표 한 줄]<br>
+        <strong>현재 단계:</strong> [지금 어느 단계까지 갔는지]<br>
+        <strong>방금 한 것:</strong> [실행한 명령어 / 클릭한 버튼]<br>
+        <strong>본 것:</strong> [화면 출력 · 에러 메시지 그대로]<br>
+        <strong>원하는 것:</strong> [다음 단계 안내 / 원인 진단 / 다른 접근 제안]
+      </div>
+    </div>
+
+    <div class="lesson-box">
+      <div class="lesson-label">왜 이 틀이 통하는가</div>
+      <div class="lesson-body">
+        AI에게 필요한 건 <strong>맥락 + 증거 + 의도</strong>다. 위 다섯 항목이 그걸 다 제공한다.
+        매번 다섯 줄을 다 쓸 필요는 없다 — 빠진 항목이 있으면 AI가 묻는다. 그땐 그 항목만 채우면 된다.
+      </div>
+    </div>
+  </div>
+
+  <div class="s-footer">
+    <span>박준하 · 2026-05-20</span>
+    <span>10 / 13</span>
+  </div>
+</section>
+
+<!-- ===== SLIDE 11 : RECAP ===== -->
+<section class="slide" id="s11">
+  <div class="s-header">
+    <span class="pg">11</span>
+    <span>RECAP · EIGHT HABITS</span>
+  </div>
+
+  <div class="content top">
+    <div class="section-label">summary</div>
+    <h2 class="s-title">여덟 가지 호흡, <span class="accent">한 장에.</span></h2>
+    <p class="body-text">
+      외울 필요 없다. 막혔을 때 이 페이지를 다시 펴 보고,
+      <strong>"지금 내가 어느 호흡을 빼먹고 있나"</strong>만 점검하면 된다.
+    </p>
+
+    <div class="grid-3" style="gap: 10px;">
+      <div class="card">
+        <div class="card-num">01 · mindset</div>
+        <div class="card-title">물어봐도 된다</div>
+        <div class="card-body">AI는 질문 수준을 평가하지 않는다.</div>
+      </div>
+      <div class="card">
+        <div class="card-num">02 · mindset</div>
+        <div class="card-title">막힘은 정상</div>
+        <div class="card-body">막힘 = 학습 신호. 자책 시간 0초.</div>
+      </div>
+      <div class="card purple">
+        <div class="card-num">03 · comm</div>
+        <div class="card-title">에러는 통째로 복붙</div>
+        <div class="card-body">요약하지 말고 그대로 전달.</div>
+      </div>
+      <div class="card purple">
+        <div class="card-num">04 · comm</div>
+        <div class="card-title">화면을 글로 옮기기</div>
+        <div class="card-body">한 것 + 본 것 + 원하는 것.</div>
+      </div>
+      <div class="card">
+        <div class="card-num">05 · rhythm</div>
+        <div class="card-title">한 단계씩</div>
+        <div class="card-body">전체 매뉴얼 No, 다음 한 줄 Yes.</div>
+      </div>
+      <div class="card">
+        <div class="card-num">06 · rhythm</div>
+        <div class="card-title">매번 확인하기</div>
+        <div class="card-body">믿음 대신 증거. 30초 투자, 1시간 절약.</div>
+      </div>
+      <div class="card purple">
+        <div class="card-num">07 · judgment</div>
+        <div class="card-title">이상하면 멈추기</div>
+        <div class="card-body">방향 의심은 나만 걸 수 있는 브레이크.</div>
+      </div>
+      <div class="card purple">
+        <div class="card-num">08 · archive</div>
+        <div class="card-title">시행착오는 메모로</div>
+        <div class="card-body">오늘의 막힘이 내일의 시작점이 된다.</div>
+      </div>
+      <div class="card" style="background: transparent; border: 1px dashed var(--purple-soft); display: flex; align-items: center; justify-content: center;">
+        <div style="text-align: center; color: var(--purple-deep); font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 0.1em;">YOUR<br>NEXT<br>HABIT</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="s-footer">
+    <span>박준하 · 2026-05-20</span>
+    <span>11 / 13</span>
+  </div>
+</section>
+
+<!-- ===== SLIDE 12 : CLOSING THOUGHT ===== -->
+<section class="slide" id="s12">
+  <div class="s-header">
+    <span class="pg">12</span>
+    <span>CLOSING · ONE LAST THING</span>
+  </div>
+
+  <div class="content">
+    <div class="section-label">one last thing</div>
+    <h2 class="s-title">결국 남는 건 <span class="accent">함께 푸는 호흡이다.</span></h2>
+    <p class="body-text">
+      이 가이드의 여덟 호흡은 사실 단순한 한 가지로 요약된다 —
+      <strong>AI를 답을 주는 자판기가 아니라, 같이 막힘을 푸는 동료로 대하는 자세</strong>다.
+      자판기는 잘못된 답을 주면 끝이지만, 동료는 같이 다시 시도할 수 있다.
+    </p>
+
+    <div class="emphasis">
+      도구는 바뀐다. 지금의 ChatGPT, Claude, Gemini, Copilot, Cursor — 1년 뒤엔 또 다른 이름이 자리할 것이다.
+      그러나 <strong>"막혔을 때 AI를 어떻게 활용하는가"라는 호흡</strong>은 그대로 남는다.
+      오늘 익힌 이 호흡이 5년, 10년 뒤에도 여러분을 앞으로 가게 할 것이다.
+    </div>
+  </div>
+
+  <div class="s-footer">
+    <span>박준하 · 2026-05-20</span>
+    <span>12 / 13</span>
+  </div>
+</section>
+
+<!-- ===== SLIDE 13 : Q&A + THANKS ===== -->
+<section class="slide dark" id="s13">
+  <div class="s-header">
+    <span class="pg">13</span>
+    <span>END · Q&amp;A</span>
+  </div>
+
+  <div class="closing-wrap">
+    <div class="hero-quote" style="text-align: center; margin: 0 0 16px; padding-left: 0; border-left: none; font-size: 26px;">
+      AI는 답을 주는 도구가 아니라,<br>
+      <em>막힘을 함께 푸는 동료</em>다.
+    </div>
+    <div class="closing-big">Q&amp;A</div>
+    <div class="closing-big">감사합니다.</div>
+  </div>
+
+  <div class="s-footer">
+    <span>박준하 · 2026-05-20</span>
+    <span>13 / 13</span>
+  </div>
+</section>
+
+<div class="nav-toast" id="nav-toast">방향키 · 마우스 휠 · 스와이프 — 한 장씩 넘기기 가능</div>
+
+<script>
+const slides = document.querySelectorAll('section');
+let currentIndex = 0;
+
+function goTo(idx) {
+  if (idx < 0 || idx >= slides.length) return;
+  currentIndex = idx;
+  slides[idx].scrollIntoView({ behavior: 'smooth' });
+}
+function next() { goTo(Math.min(slides.length - 1, currentIndex + 1)); }
+function prev() { goTo(Math.max(0, currentIndex - 1)); }
+
+let scrollTimer;
+window.addEventListener('scroll', () => {
+  clearTimeout(scrollTimer);
+  scrollTimer = setTimeout(() => {
+    const y = window.scrollY + window.innerHeight / 2;
+    let best = 0;
+    slides.forEach((s, i) => { if (s.offsetTop <= y) best = i; });
+    currentIndex = best;
+  }, 80);
+});
+
+document.addEventListener('keydown', (e) => {
+  if (['ArrowDown', 'PageDown', ' '].includes(e.key)) {
+    e.preventDefault(); next();
+  } else if (['ArrowUp', 'PageUp'].includes(e.key)) {
+    e.preventDefault(); prev();
+  } else if (e.key === 'Home') {
+    e.preventDefault(); goTo(0);
+  } else if (e.key === 'End') {
+    e.preventDefault(); goTo(slides.length - 1);
+  }
+});
+
+let wheelLock = false;
+window.addEventListener('wheel', (e) => {
+  e.preventDefault();
+  if (wheelLock) return;
+  wheelLock = true;
+  if (e.deltaY > 20) next();
+  else if (e.deltaY < -20) prev();
+  setTimeout(() => { wheelLock = false; }, 700);
+}, { passive: false });
+
+let touchStartY = 0;
+window.addEventListener('touchstart', (e) => {
+  touchStartY = e.touches[0].clientY;
+}, { passive: true });
+window.addEventListener('touchend', (e) => {
+  const dy = touchStartY - e.changedTouches[0].clientY;
+  if (Math.abs(dy) > 50) {
+    if (dy > 0) next();
+    else prev();
+  }
+}, { passive: true });
+
+setTimeout(() => {
+  const toast = document.getElementById('nav-toast');
+  if (toast) toast.classList.add('hidden');
+}, 3000);
+</script>
+
+</body>
+</html>
